@@ -3,67 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grievance Dashboard</title>
+    <title>Grievance Redressal System</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <div class="header-content">
-                <h1>🏛️ Grievance Redressal System</h1>
-                <div class="header-actions">
-                    <span id="user-address" class="user-address"></span>
-                    <button id="disconnect-btn" class="btn btn-small">Disconnect</button>
-                </div>
+    <!-- Wallet Connection Overlay (shown when not connected) -->
+    <div id="wallet-overlay" class="wallet-overlay">
+        <div class="wallet-connection-card">
+            <div class="wallet-header">
+                <h2>🔐 Connect Your Wallet</h2>
+                <p class="wallet-subtitle">Connect your MetaMask wallet to access the grievance management system</p>
             </div>
-        </header>
+            
+            <div id="wallet-status" class="wallet-status">
+                <div id="status-message" class="status-message info">Not connected</div>
+            </div>
 
-        <nav class="nav-tabs">
-            <button class="tab-btn active" data-tab="submit">Submit Grievance</button>
-            <button class="tab-btn" data-tab="my-grievances">My Grievances</button>
-            <button class="tab-btn" data-tab="authority-grievances" id="authority-tab" style="display: none;">Assigned Grievances</button>
-        </nav>
+            <button id="connect-btn" class="btn btn-primary btn-large">
+                <span>🦊 Connect MetaMask</span>
+            </button>
 
-        <!-- Submit Grievance Tab -->
-        <div id="submit-tab" class="tab-content active">
-            <div class="card">
-                <h2>Submit New Grievance</h2>
-                <form id="grievance-form">
-                    <div class="form-group">
-                        <label for="grievance-description">Grievance Description</label>
-                        <textarea 
-                            id="grievance-description" 
-                            rows="6" 
-                            placeholder="Describe your grievance in detail (max 1000 characters)"
-                            required
-                            maxlength="1000"
-                        ></textarea>
-                        <div class="char-count">
-                            <span id="char-count">0</span> / 1000 characters
-                        </div>
+            <div id="connection-details" class="connection-details" style="display: none;">
+                <div class="connection-info">
+                    <div class="info-item">
+                        <strong>Connected Address:</strong>
+                        <span id="connected-address" class="address"></span>
                     </div>
-                    <button type="submit" class="btn btn-primary">Submit Grievance</button>
-                </form>
-                <div id="submit-status" class="status-message"></div>
-            </div>
-        </div>
-
-        <!-- My Grievances Tab -->
-        <div id="my-grievances-tab" class="tab-content">
-            <div class="card">
-                <h2>My Grievances</h2>
-                <div id="my-grievances-list" class="grievances-list">
-                    <p class="empty-state">Loading your grievances...</p>
+                    <div class="info-item">
+                        <strong>Network:</strong>
+                        <span id="network-name"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Role:</strong>
+                        <span id="user-role-display">Loading...</span>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Authority Grievances Tab -->
-        <div id="authority-grievances-tab" class="tab-content">
-            <div class="card">
-                <h2>Assigned Grievances</h2>
-                <div id="authority-grievances-list" class="grievances-list">
-                    <p class="empty-state">Loading assigned grievances...</p>
+            <div class="wallet-actions">
+                <a href="admin.html" class="btn btn-secondary btn-link">
+                    🔐 Admin Panel (Assign Roles)
+                </a>
+            </div>
+
+            <div class="info-box">
+                <h3>⚠️ Important Notes</h3>
+                <ul>
+                    <li>Ensure you're connected to <strong>Sepolia Testnet</strong></li>
+                    <li>Make sure you have Sepolia ETH for gas fees</li>
+                    <li>Your wallet address determines your role in the system</li>
+                    <li>All transactions are permanent and transparent</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard (shown when connected) -->
+    <div id="dashboard-container" class="dashboard-container" style="display: none;">
+        <div class="container">
+            <header class="header">
+                <div class="header-content">
+                    <div class="header-title">
+                        <h1>🏛️ Grievance Redressal System</h1>
+                        <p class="subtitle">Decentralized • Transparent • Accountable</p>
+                    </div>
+                    <div class="header-actions">
+                        <div class="user-info">
+                            <span id="user-address" class="user-address"></span>
+                            <span id="user-role-badge" class="role-badge"></span>
+                        </div>
+                        <button id="disconnect-btn" class="btn btn-small btn-ghost">Disconnect</button>
+                    </div>
+                </div>
+            </header>
+
+            <nav class="nav-tabs">
+                <button class="tab-btn active" data-tab="submit">
+                    <span class="tab-icon">📝</span>
+                    <span>Submit Grievance</span>
+                </button>
+                <button class="tab-btn" data-tab="my-grievances">
+                    <span class="tab-icon">📋</span>
+                    <span>My Grievances</span>
+                </button>
+                <button class="tab-btn" data-tab="authority-grievances" id="authority-tab" style="display: none;">
+                    <span class="tab-icon">⚖️</span>
+                    <span>Assigned Grievances</span>
+                </button>
+            </nav>
+
+            <!-- Submit Grievance Tab -->
+            <div id="submit-tab" class="tab-content active">
+                <div class="card card-elevated">
+                    <div class="card-header">
+                        <h2>📝 Submit New Grievance</h2>
+                        <p class="card-description">Describe your issue in detail. All grievances are stored on blockchain for transparency and accountability.</p>
+                    </div>
+                    <form id="grievance-form">
+                        <div class="form-group">
+                            <label for="grievance-description">Grievance Description</label>
+                            <textarea 
+                                id="grievance-description" 
+                                rows="6" 
+                                placeholder="Describe your grievance in detail (max 1000 characters)"
+                                required
+                                maxlength="1000"
+                            ></textarea>
+                            <div class="char-count">
+                                <span id="char-count">0</span> / 1000 characters
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-large">
+                            <span>Submit Grievance</span>
+                        </button>
+                    </form>
+                    <div id="submit-status" class="status-message"></div>
+                </div>
+            </div>
+
+            <!-- My Grievances Tab -->
+            <div id="my-grievances-tab" class="tab-content">
+                <div class="card card-elevated">
+                    <div class="card-header">
+                        <h2>📋 My Grievances</h2>
+                        <p class="card-description">View all grievances you have submitted and track their status.</p>
+                    </div>
+                    <div id="my-grievances-list" class="grievances-list">
+                        <p class="empty-state">Loading your grievances...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Authority Grievances Tab -->
+            <div id="authority-grievances-tab" class="tab-content">
+                <div class="card card-elevated">
+                    <div class="card-header">
+                        <h2>⚖️ Assigned Grievances</h2>
+                        <p class="card-description">Review and take action on grievances assigned to your role.</p>
+                    </div>
+                    <div id="authority-grievances-list" class="grievances-list">
+                        <p class="empty-state">Loading assigned grievances...</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -71,7 +151,7 @@
 
     <!-- Grievance Detail Modal -->
     <div id="grievance-modal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content modal-large">
             <span class="close-modal">&times;</span>
             <div id="modal-body">
                 <!-- Grievance details will be loaded here -->
@@ -91,10 +171,18 @@
                     <textarea id="action-remarks" rows="4" placeholder="Enter your remarks (required)" required maxlength="500"></textarea>
                 </div>
                 <div class="action-buttons">
-                    <button type="button" class="btn btn-secondary" id="review-btn">Mark as In Review</button>
-                    <button type="button" class="btn btn-success" id="resolve-btn">Resolve</button>
-                    <button type="button" class="btn btn-warning" id="escalate-btn">Escalate</button>
-                    <button type="button" class="btn btn-danger" id="close-btn" style="display: none;">Close (Dean Only)</button>
+                    <button type="button" class="btn btn-secondary" id="review-btn">
+                        <span>👁️ Mark as In Review</span>
+                    </button>
+                    <button type="button" class="btn btn-success" id="resolve-btn">
+                        <span>✅ Resolve</span>
+                    </button>
+                    <button type="button" class="btn btn-warning" id="escalate-btn">
+                        <span>⬆️ Escalate</span>
+                    </button>
+                    <button type="button" class="btn btn-danger" id="close-btn" style="display: none;">
+                        <span>🔒 Close (Dean Only)</span>
+                    </button>
                 </div>
             </form>
             <div id="action-status" class="status-message"></div>
@@ -107,4 +195,3 @@
     <script src="app.js"></script>
 </body>
 </html>
-

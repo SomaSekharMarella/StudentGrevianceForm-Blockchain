@@ -103,69 +103,113 @@ function waitForEthers(callback, maxAttempts = 50) {
   }
 }
 
-// Check if we're on index.html or dashboard.html
-const isDashboard = window.location.pathname.includes('dashboard.html');
-
-if (isDashboard) {
-  // Initialize dashboard
-  document.addEventListener('DOMContentLoaded', async () => {
-    waitForEthers(async () => {
-      await initDashboard();
-    });
+// Initialize dashboard (handles both wallet connection and dashboard)
+document.addEventListener('DOMContentLoaded', async () => {
+  waitForEthers(async () => {
+    await initApp();
   });
-} else {
-  // Initialize login page
-  document.addEventListener('DOMContentLoaded', () => {
-    waitForEthers(() => {
-      initLoginPage();
-    });
-  });
-}
+});
 
-// ============ LOGIN PAGE ============
+// ============ APP INITIALIZATION ============
 
-function initLoginPage() {
-  const connectBtn = document.getElementById('connect-btn');
-  const proceedBtn = document.getElementById('proceed-btn');
-  
-  connectBtn.addEventListener('click', connectWallet);
-  proceedBtn.addEventListener('click', () => {
-    window.location.href = 'dashboard.html';
-  });
-}
-
-// ============ DASHBOARD ============
-
-async function initDashboard() {
-  // Check if wallet is connected
+async function initApp() {
+  // Check if MetaMask is installed
   if (!window.ethereum) {
-    alert('Please install MetaMask!');
-    window.location.href = 'index.html';
+    showMetaMaskWarning();
     return;
   }
 
-  // Initialize provider and contract
+  // Setup wallet connection handlers
+  const connectBtn = document.getElementById('connect-btn');
+  if (connectBtn) {
+    connectBtn.addEventListener('click', handleWalletConnect);
+  }
+
+  // Check if already connected
+  try {
+    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+    if (accounts.length > 0) {
+      await connectWallet();
+      if (userAddress) {
+        await showDashboard();
+      }
+    } else {
+      showWalletOverlay();
+    }
+  } catch (error) {
+    console.error('Error checking wallet connection:', error);
+    showWalletOverlay();
+  }
+
+  // Handle account changes
+  window.ethereum.on('accountsChanged', (accounts) => {
+    if (accounts.length === 0) {
+      showWalletOverlay();
+    } else {
+      window.location.reload();
+    }
+  });
+}
+
+async function handleWalletConnect() {
   await connectWallet();
-  
-  if (!userAddress) {
-    window.location.href = 'index.html';
-    return;
+  if (userAddress) {
+    await showDashboard();
   }
+}
 
-  // Setup event listeners
-  setupEventListeners();
+function showWalletOverlay() {
+  const overlay = document.getElementById('wallet-overlay');
+  const dashboard = document.getElementById('dashboard-container');
+  if (overlay) overlay.style.display = 'flex';
+  if (dashboard) dashboard.style.display = 'none';
+}
+
+async function showDashboard() {
+  const overlay = document.getElementById('wallet-overlay');
+  const dashboard = document.getElementById('dashboard-container');
+  if (overlay) overlay.style.display = 'none';
+  if (dashboard) dashboard.style.display = 'block';
   
-  // Load initial data
+  // Initialize dashboard functionality
+  setupEventListeners();
   await checkUserRole();
   await loadGrievances();
+}
+
+function showMetaMaskWarning() {
+  const overlay = document.getElementById('wallet-overlay');
+  if (overlay) {
+    overlay.innerHTML = `
+      <div class="wallet-connection-card">
+        <div class="wallet-header">
+          <h2>⚠️ MetaMask Required</h2>
+          <p class="wallet-subtitle">Please install MetaMask to use this application</p>
+        </div>
+        <div class="info-box">
+          <h3>Install MetaMask</h3>
+          <ul>
+            <li>Visit <a href="https://metamask.io" target="_blank">metamask.io</a></li>
+            <li>Download and install the browser extension</li>
+            <li>Create or import a wallet</li>
+            <li>Refresh this page after installation</li>
+          </ul>
+        </div>
+      </div>
+    `;
+  }
 }
 
 function setupEventListeners() {
   // Tab switching
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      const tabName = e.target.dataset.tab;
-      switchTab(tabName);
+      // Handle clicks on icon or text within button
+      const tabBtn = e.target.closest('.tab-btn');
+      if (tabBtn) {
+        const tabName = tabBtn.dataset.tab;
+        switchTab(tabName);
+      }
     });
   });
 
@@ -188,7 +232,10 @@ function setupEventListeners() {
   const disconnectBtn = document.getElementById('disconnect-btn');
   if (disconnectBtn) {
     disconnectBtn.addEventListener('click', () => {
-      window.location.href = 'index.html';
+      showWalletOverlay();
+      userAddress = null;
+      userRole = ROLE.STUDENT;
+      userRoleName = "Student";
     });
   }
 
@@ -309,47 +356,29 @@ async function connectWallet() {
       console.log('✅ On Sepolia network! ChainId:', chainId);
     }
 
-    // Update UI
-    if (isDashboard) {
-      const userAddressEl = document.getElementById('user-address');
-      if (userAddressEl) {
-        userAddressEl.textContent = 
-          `${userAddress.substring(0, 6)}...${userAddress.substring(38)}`;
-      }
-    } else {
-      const connectedAddressEl = document.getElementById('connected-address');
-      if (connectedAddressEl) {
-        connectedAddressEl.textContent = 
-          `${userAddress.substring(0, 6)}...${userAddress.substring(38)}`;
-      }
-      
-      const networkNameEl = document.getElementById('network-name');
-      if (networkNameEl) networkNameEl.textContent = network.name;
-      
-      const connectionDetailsEl = document.getElementById('connection-details');
-      if (connectionDetailsEl) connectionDetailsEl.style.display = 'block';
-      
-      const proceedBtnEl = document.getElementById('proceed-btn');
-      if (proceedBtnEl) proceedBtnEl.style.display = 'block';
-      
-      const connectBtnEl = document.getElementById('connect-btn');
-      if (connectBtnEl) connectBtnEl.style.display = 'none';
-      
-      const statusMessageEl = document.getElementById('status-message');
-      if (statusMessageEl) {
-        statusMessageEl.textContent = 'Connected';
-        statusMessageEl.className = 'status-message success';
-      }
+    // Update connection details in overlay
+    const connectedAddressEl = document.getElementById('connected-address');
+    if (connectedAddressEl) {
+      connectedAddressEl.textContent = `${userAddress.substring(0, 6)}...${userAddress.substring(38)}`;
+    }
+    
+    const networkNameEl = document.getElementById('network-name');
+    if (networkNameEl) {
+      const network = await provider.getNetwork();
+      networkNameEl.textContent = network.name;
+    }
+    
+    const connectionDetailsEl = document.getElementById('connection-details');
+    if (connectionDetailsEl) connectionDetailsEl.style.display = 'block';
+    
+    const statusMessageEl = document.getElementById('status-message');
+    if (statusMessageEl) {
+      statusMessageEl.textContent = '✅ Connected';
+      statusMessageEl.className = 'status-message success';
     }
 
     // Listen for account changes
-    window.ethereum.on('accountsChanged', (accounts) => {
-      if (accounts.length === 0) {
-        window.location.href = 'index.html';
-      } else {
-        window.location.reload();
-      }
-    });
+    // Account changes are handled in initApp()
     
     // Listen for network changes
     window.ethereum.on('chainChanged', () => {
@@ -408,16 +437,21 @@ async function checkUserRole() {
       if (authorityTabBtn) authorityTabBtn.style.display = 'none';
     }
     
-    // Update role display if on login page
-    if (!isDashboard) {
-      const roleElement = document.getElementById('user-role');
-      if (roleElement) roleElement.textContent = userRoleName;
+    // Update role display in overlay
+    const userRoleDisplay = document.getElementById('user-role-display');
+    if (userRoleDisplay) {
+      userRoleDisplay.textContent = userRoleName;
     }
     
     // Update header with role
     const userAddressEl = document.getElementById('user-address');
+    const userRoleBadge = document.getElementById('user-role-badge');
+    
     if (userAddressEl) {
-      userAddressEl.textContent = `${userRoleName} - ${userAddress.substring(0, 6)}...${userAddress.substring(38)}`;
+      userAddressEl.textContent = `${userAddress.substring(0, 6)}...${userAddress.substring(38)}`;
+    }
+    if (userRoleBadge) {
+      userRoleBadge.textContent = userRoleName;
     }
     
   } catch (error) {
@@ -439,12 +473,16 @@ function switchTab(tabName) {
     }
   });
 
-  // Update tab content
+  // Hide all tab content - remove active class and hide
   document.querySelectorAll('.tab-content').forEach(content => {
     content.classList.remove('active');
   });
 
-  document.getElementById(`${tabName}-tab`).classList.add('active');
+  // Show the selected tab content - add active class
+  const targetTab = document.getElementById(`${tabName}-tab`);
+  if (targetTab) {
+    targetTab.classList.add('active');
+  }
 
   // Tab switching just shows/hides content - data is already loaded on page init
   // No need to reload data when switching tabs
