@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Assign Authorities</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🔐 Admin Panel</h1>
+            <p class="subtitle">Assign Authority Roles</p>
+        </header>
+
+        <main class="main-content">
+            <div class="card">
+                <h2>Connect Your Wallet</h2>
+                <p class="description">
+                    Connect the wallet you used to deploy the contract (or any wallet to assign roles).
+                </p>
+
+                <button id="connect-btn" class="btn btn-primary">Connect MetaMask</button>
+
+                <div id="metamask-warning" style="display: none;"></div>
+
+                <div id="connection-details" class="connection-details" style="display: none;">
+                    <div class="info-item">
+                        <strong>Connected Address:</strong>
+                        <span id="connected-address" class="address"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Contract Address:</strong>
+                        <span id="contract-address" class="address"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" id="admin-panel" style="display: none;">
+                <h2>Assign Authority Roles</h2>
+                <p class="description">
+                    Enter wallet addresses and assign them to authority roles. Each role handles grievances at different levels.
+                </p>
+
+                <div class="role-sections">
+                    <!-- Counselor -->
+                    <div class="role-section">
+                        <h3>👨‍⚕️ Counselor (Level 1)</h3>
+                        <p class="role-description">First responder - handles initial grievance submissions</p>
+                        <div class="form-group">
+                            <label for="counselor-address">Wallet Address:</label>
+                            <input 
+                                type="text" 
+                                id="counselor-address" 
+                                placeholder="0x..." 
+                                pattern="^0x[a-fA-F0-9]{40}$"
+                            >
+                        </div>
+                        <button class="btn btn-primary btn-assign" data-level="0" data-role="Counselor">
+                            Assign Counselor Role
+                        </button>
+                        <div class="status-message" id="status-0"></div>
+                    </div>
+
+                    <!-- Year Coordinator -->
+                    <div class="role-section">
+                        <h3>📘 Year Coordinator (Level 2)</h3>
+                        <p class="role-description">Handles escalated grievances from Counselor</p>
+                        <div class="form-group">
+                            <label for="yearcoord-address">Wallet Address:</label>
+                            <input 
+                                type="text" 
+                                id="yearcoord-address" 
+                                placeholder="0x..." 
+                                pattern="^0x[a-fA-F0-9]{40}$"
+                            >
+                        </div>
+                        <button class="btn btn-primary btn-assign" data-level="1" data-role="Year Coordinator">
+                            Assign Year Coordinator Role
+                        </button>
+                        <div class="status-message" id="status-1"></div>
+                    </div>
+
+                    <!-- HOD -->
+                    <div class="role-section">
+                        <h3>🏢 HOD - Head of Department (Level 3)</h3>
+                        <p class="role-description">Handles escalated grievances from Year Coordinator</p>
+                        <div class="form-group">
+                            <label for="hod-address">Wallet Address:</label>
+                            <input 
+                                type="text" 
+                                id="hod-address" 
+                                placeholder="0x..." 
+                                pattern="^0x[a-fA-F0-9]{40}$"
+                            >
+                        </div>
+                        <button class="btn btn-primary btn-assign" data-level="2" data-role="HOD">
+                            Assign HOD Role
+                        </button>
+                        <div class="status-message" id="status-2"></div>
+                    </div>
+
+                    <!-- Dean -->
+                    <div class="role-section">
+                        <h3>🎓 Dean of Academics (Level 4)</h3>
+                        <p class="role-description">Final authority - can close grievances permanently</p>
+                        <div class="form-group">
+                            <label for="dean-address">Wallet Address:</label>
+                            <input 
+                                type="text" 
+                                id="dean-address" 
+                                placeholder="0x..." 
+                                pattern="^0x[a-fA-F0-9]{40}$"
+                            >
+                        </div>
+                        <button class="btn btn-primary btn-assign" data-level="3" data-role="Dean">
+                            Assign Dean Role
+                        </button>
+                        <div class="status-message" id="status-3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" id="verify-panel" style="display: none;">
+                <h2>Verify Role Assignment</h2>
+                <p class="description">Check if an address has a specific role assigned</p>
+                
+                <div class="form-group">
+                    <label for="verify-address">Wallet Address to Check:</label>
+                    <input 
+                        type="text" 
+                        id="verify-address" 
+                        placeholder="0x..." 
+                        pattern="^0x[a-fA-F0-9]{40}$"
+                    >
+                </div>
+                
+                <button id="verify-btn" class="btn btn-secondary">Check Roles</button>
+                
+                <div id="verify-result" class="verify-result"></div>
+            </div>
+
+            <div class="info-box">
+                <h3>💡 Quick Tips</h3>
+                <ul>
+                    <li>Only the admin (contract deployer) can assign roles</li>
+                    <li>Each address can have only ONE role at a time</li>
+                    <li>Addresses must be valid Ethereum addresses (0x followed by 40 hex characters)</li>
+                    <li>After assigning, wait for transaction confirmation</li>
+                    <li>Use the verify function to check if assignment was successful</li>
+                    <li>Once assigned, the address can use that role in the dashboard</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <a href="index.html" class="btn btn-secondary">← Back to Login</a>
+                <a href="dashboard.html" class="btn btn-primary" style="margin-left: 10px;">Go to Dashboard →</a>
+            </div>
+
+            <div class="info-box" style="margin-top: 20px;">
+                <h3>🆘 Need Help?</h3>
+                <p><strong>MetaMask not working?</strong></p>
+                <ul>
+                    <li>Make sure MetaMask extension is <strong>enabled</strong> in your browser</li>
+                    <li>Make sure MetaMask is <strong>unlocked</strong> (not locked/sleeping)</li>
+                    <li><strong>Refresh the page</strong> (F5) after enabling/unlocking</li>
+                    <li>Try <strong>restarting your browser</strong> if still not working</li>
+                    <li>Check <code>METAMASK_TROUBLESHOOTING.md</code> for detailed help</li>
+                </ul>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Built with ❤️ using Solidity, Hardhat & Ethers.js</p>
+        </footer>
+    </div>
+
+    <!-- Load Ethers.js - Try jsDelivr first (more reliable), then fallbacks -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="config.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
+

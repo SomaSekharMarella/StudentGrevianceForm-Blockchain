@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grievance Redressal System - Login</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🏛️ Grievance Redressal System</h1>
+            <p class="subtitle">Decentralized • Transparent • Accountable</p>
+        </header>
+
+        <main class="main-content">
+            <div class="login-card">
+                <h2>Connect Your Wallet</h2>
+                <p class="description">
+                    Connect your MetaMask wallet to access the grievance management system.
+                    All grievances are stored on blockchain for transparency and immutability.
+                </p>
+
+                <div id="wallet-status" class="wallet-status">
+                    <div id="status-message" class="status-message">Not connected</div>
+                </div>
+
+                <button id="connect-btn" class="btn btn-primary">Connect MetaMask</button>
+
+                <div id="connection-details" class="connection-details" style="display: none;">
+                    <div class="info-item">
+                        <strong>Connected Address:</strong>
+                        <span id="connected-address" class="address"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Network:</strong>
+                        <span id="network-name"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Role:</strong>
+                        <span id="user-role">Student</span>
+                    </div>
+                </div>
+
+                <button id="proceed-btn" class="btn btn-secondary" style="display: none; margin-top: 20px;">
+                    Proceed to Dashboard
+                </button>
+
+                <div style="margin-top: 20px; text-align: center;">
+                    <a href="admin.html" class="btn btn-secondary" style="display: inline-block;">
+                        🔐 Admin Panel (Assign Roles)
+                    </a>
+                </div>
+
+                <div class="info-box">
+                    <h3>⚠️ Important Notes</h3>
+                    <ul>
+                        <li>Ensure you're connected to Sepolia Testnet</li>
+                        <li>Make sure you have Sepolia ETH for gas fees</li>
+                        <li>Your wallet address determines your role in the system</li>
+                        <li>All transactions are permanent and transparent</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="web3-info">
+                <h3>Why Web3?</h3>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h4>🔒 Immutability</h4>
+                        <p>Grievances cannot be deleted or tampered with</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>👁️ Transparency</h4>
+                        <p>All actions are publicly verifiable on blockchain</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>⚖️ Decentralization</h4>
+                        <p>No single point of failure or authority manipulation</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📊 Traceability</h4>
+                        <p>Complete audit trail of all grievance interactions</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Built with ❤️ using Solidity, Hardhat & Ethers.js</p>
+        </footer>
+    </div>
+
+    <!-- Load Ethers.js - Try jsDelivr first (more reliable), then fallbacks -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+

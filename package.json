@@ -1,0 +1,30 @@
+{
+  "name": "grievance-dapp",
+  "version": "1.0.0",
+  "description": "Decentralized Grievance Redressal System for Academic Institutions",
+  "main": "index.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
+    "node": "hardhat node",
+    "extract-abi": "node scripts/extract-abi.js"
+  },
+  "keywords": [
+    "blockchain",
+    "web3",
+    "grievance",
+    "solidity",
+    "ethereum"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.19.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1"
+  }
+}
+

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MetaMask Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px 5px;
+            cursor: pointer;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🦊 MetaMask Connection Test</h1>
+    
+    <div id="status"></div>
+    
+    <button onclick="testConnection()">Test MetaMask Connection</button>
+    <button onclick="checkDetails()">Check Details</button>
+    
+    <div id="details" style="margin-top: 20px;"></div>
+
+    <!-- Try multiple CDN sources for Ethers.js -->
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+    <script>
+        // Wait for ethers to load
+        function waitForEthers(callback, maxAttempts = 10) {
+            if (typeof ethers !== 'undefined') {
+                callback();
+            } else if (maxAttempts > 0) {
+                setTimeout(() => waitForEthers(callback, maxAttempts - 1), 100);
+            } else {
+                // Try alternative CDN
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js';
+                script.onload = callback;
+                script.onerror = () => {
+                    addStatus('❌ Failed to load Ethers.js library. Please check your internet connection.', 'error');
+                };
+                document.head.appendChild(script);
+            }
+        }
+
+        function addStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function addDetail(key, value) {
+            const detailsDiv = document.getElementById('details');
+            const p = document.createElement('p');
+            p.innerHTML = `<strong>${key}:</strong> <code>${value}</code>`;
+            detailsDiv.appendChild(p);
+        }
+
+        function clearDetails() {
+            document.getElementById('details').innerHTML = '';
+        }
+
+        async function testConnection() {
+            clearDetails();
+            addStatus('Testing MetaMask connection...', 'info');
+
+            // Test 1: Check if window.ethereum exists
+            if (typeof window.ethereum === 'undefined') {
+                addStatus('❌ MetaMask is NOT installed or NOT detected!', 'error');
+                addDetail('window.ethereum', 'undefined');
+                return;
+            }
+
+            addStatus('✅ MetaMask detected!', 'success');
+            addDetail('window.ethereum', 'exists');
+
+            // Wait for ethers to be available
+            waitForEthers(async () => {
+                if (typeof ethers === 'undefined') {
+                    addStatus('❌ Ethers.js library failed to load!', 'error');
+                    addDetail('Ethers.js', 'Not loaded');
+                    return;
+                }
+
+                addDetail('Ethers.js', 'Loaded successfully');
+                addDetail('Ethers Version', ethers.version || 'Unknown');
+
+                try {
+                    // Test 2: Request accounts
+                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                    addDetail('Accounts (without request)', accounts.length > 0 ? `${accounts.length} account(s)` : 'No accounts (locked or not connected)');
+
+                    // Test 3: Request connection
+                    const requestedAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    
+                    if (requestedAccounts && requestedAccounts.length > 0) {
+                        addStatus(`✅ Connected! Account: ${requestedAccounts[0]}`, 'success');
+                        addDetail('Connected Account', requestedAccounts[0]);
+                    } else {
+                        addStatus('❌ No accounts returned', 'error');
+                        return;
+                    }
+
+                    // Test 4: Create provider
+                    const provider = new ethers.providers.Web3Provider(window.ethereum);
+                    addDetail('Provider', 'Created successfully');
+
+                    // Test 5: Get network
+                    const network = await provider.getNetwork();
+                    addDetail('Network Name', network.name);
+                    addDetail('Chain ID', network.chainId.toString());
+                    addDetail('Network', JSON.stringify(network, null, 2));
+
+                    // Test 6: Get signer
+                    const signer = provider.getSigner();
+                    const address = await signer.getAddress();
+                    addDetail('Signer Address', address);
+
+                    addStatus('✅ All tests passed! MetaMask is working correctly.', 'success');
+
+                } catch (error) {
+                    addStatus(`❌ Error: ${error.message}`, 'error');
+                    addDetail('Error Code', error.code || 'N/A');
+                    addDetail('Error Message', error.message);
+                    addDetail('Full Error', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+                }
+            });
+        }
+
+        async function checkDetails() {
+            clearDetails();
+            addStatus('Checking MetaMask details...', 'info');
+
+            if (typeof window.ethereum === 'undefined') {
+                addStatus('❌ MetaMask not detected', 'error');
+                return;
+            }
+
+            addDetail('window.ethereum exists', 'Yes');
+            addDetail('isMetaMask', window.ethereum.isMetaMask ? 'Yes' : 'No');
+            addDetail('selectedAddress', window.ethereum.selectedAddress || 'None');
+            addDetail('chainId', window.ethereum.chainId || 'Not available');
+            addDetail('networkVersion', window.ethereum.networkVersion || 'Not available');
+            
+            // Check Ethers.js
+            waitForEthers(() => {
+                if (typeof ethers !== 'undefined') {
+                    addDetail('Ethers.js loaded', 'Yes');
+                    addDetail('Ethers version', ethers.version || 'Unknown');
+                } else {
+                    addDetail('Ethers.js loaded', 'No - Library failed to load');
+                }
+            });
+        }
+
+        // Auto-check on load
+        window.addEventListener('load', () => {
+            if (typeof window.ethereum === 'undefined') {
+                addStatus('⚠️ MetaMask not detected. Please install MetaMask.', 'error');
+            } else {
+                addStatus('✅ MetaMask detected! Click "Test Connection" to proceed.', 'info');
+            }
+            
+            // Check if ethers loaded
+            waitForEthers(() => {
+                if (typeof ethers !== 'undefined') {
+                    addStatus('✅ Ethers.js loaded! Ready to test.', 'success');
+                } else {
+                    addStatus('⚠️ Ethers.js not loaded. Trying alternative source...', 'error');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

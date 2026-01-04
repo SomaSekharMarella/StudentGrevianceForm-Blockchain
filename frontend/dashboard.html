@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grievance Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <h1>🏛️ Grievance Redressal System</h1>
+                <div class="header-actions">
+                    <span id="user-address" class="user-address"></span>
+                    <button id="disconnect-btn" class="btn btn-small">Disconnect</button>
+                </div>
+            </div>
+        </header>
+
+        <nav class="nav-tabs">
+            <button class="tab-btn active" data-tab="submit">Submit Grievance</button>
+            <button class="tab-btn" data-tab="my-grievances">My Grievances</button>
+            <button class="tab-btn" data-tab="authority-grievances" id="authority-tab" style="display: none;">Assigned Grievances</button>
+        </nav>
+
+        <!-- Submit Grievance Tab -->
+        <div id="submit-tab" class="tab-content active">
+            <div class="card">
+                <h2>Submit New Grievance</h2>
+                <form id="grievance-form">
+                    <div class="form-group">
+                        <label for="grievance-description">Grievance Description</label>
+                        <textarea 
+                            id="grievance-description" 
+                            rows="6" 
+                            placeholder="Describe your grievance in detail (max 1000 characters)"
+                            required
+                            maxlength="1000"
+                        ></textarea>
+                        <div class="char-count">
+                            <span id="char-count">0</span> / 1000 characters
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Grievance</button>
+                </form>
+                <div id="submit-status" class="status-message"></div>
+            </div>
+        </div>
+
+        <!-- My Grievances Tab -->
+        <div id="my-grievances-tab" class="tab-content">
+            <div class="card">
+                <h2>My Grievances</h2>
+                <div id="my-grievances-list" class="grievances-list">
+                    <p class="empty-state">Loading your grievances...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Authority Grievances Tab -->
+        <div id="authority-grievances-tab" class="tab-content">
+            <div class="card">
+                <h2>Assigned Grievances</h2>
+                <div id="authority-grievances-list" class="grievances-list">
+                    <p class="empty-state">Loading assigned grievances...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grievance Detail Modal -->
+    <div id="grievance-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div id="modal-body">
+                <!-- Grievance details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Modal (for authorities) -->
+    <div id="action-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="action-title">Action on Grievance</h2>
+            <form id="action-form">
+                <input type="hidden" id="action-grievance-id">
+                <div class="form-group">
+                    <label for="action-remarks">Remarks</label>
+                    <textarea id="action-remarks" rows="4" placeholder="Enter your remarks (required)" required maxlength="500"></textarea>
+                </div>
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-secondary" id="review-btn">Mark as In Review</button>
+                    <button type="button" class="btn btn-success" id="resolve-btn">Resolve</button>
+                    <button type="button" class="btn btn-warning" id="escalate-btn">Escalate</button>
+                    <button type="button" class="btn btn-danger" id="close-btn" style="display: none;">Close (Dean Only)</button>
+                </div>
+            </form>
+            <div id="action-status" class="status-message"></div>
+        </div>
+    </div>
+
+    <!-- Load Ethers.js - Try jsDelivr first (more reliable), then fallbacks -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+
