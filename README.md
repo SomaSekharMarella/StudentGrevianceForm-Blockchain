@@ -216,9 +216,6 @@ This is just the beginning. Potential enhancements include:
 - Support for file attachments
 - Multi-language support
 
-## Built For IIT Hyderabad Hackathon
-
-This project was developed for the Web3 Campus Hackathon at IIT Hyderabad, focusing on solving real student problems using blockchain technology.
 
 **Our Goal:** To demonstrate that blockchain isn't just about cryptocurrencies - it's a powerful tool for building transparent, accountable, and trustworthy systems that can solve real-world problems in academic institutions.
 
